@@ -26,8 +26,6 @@ const CameraFeed: React.FC<CameraFeedProps> = ({ style }) => {
     useGeneralStateStore();
 
   const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
-
-  //const authorizationToken = process.env.NEXT_PUBLIC_AUTHORIZATIONTOKEN; // Replace with your actual token
   const isSendingRef = useRef<boolean>(true);
   const lastCallRef = useRef<number>(Date.now());
 
@@ -85,11 +83,8 @@ const CameraFeed: React.FC<CameraFeedProps> = ({ style }) => {
     formData.append('temperature', '37.7');
 
     try {
-      const response = await fetch(backendUrl + '/attendance/create', {
+      const response = await fetch(backendUrl + '/api/v1/attendance/create', {
         method: 'POST',
-        // headers: {
-        //   Authorization: `Bearer ${authorizationToken}`,
-        // },
         body: formData,
       });
       const data = await response.json();
