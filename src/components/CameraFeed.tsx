@@ -1,4 +1,5 @@
 'use client';
+import { useBodyTemperatureQuery } from '@/service/apiService';
 import { useGeneralStateStore } from '@/store/GeneralStateStore';
 import { useEffect, useRef, useState } from 'react';
 
@@ -14,20 +15,31 @@ interface CameraFeedProps {
 }
 
 const CameraFeed: React.FC<CameraFeedProps> = ({ style }) => {
+  const { data: BodyTemperature } = useBodyTemperatureQuery();
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const logoRef = useRef<HTMLImageElement | null>(null); // Reference for the logo
+
   const [fps, setFps] = useState<number>(0);
   const [num, setNum] = useState<number>(0);
   const [dimensions_show, setDimensions_show] = useState<DimensionsType | null>(
     null
   );
-  // const [imageUrl, setImageUrl] = useState<string | null>(null);
   const { setGeneral_ModalIsOpenedState, setGeneral_ModalContentState } =
     useGeneralStateStore();
 
   const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
   const isSendingRef = useRef<boolean>(true);
   const lastCallRef = useRef<number>(Date.now());
+
+  // Load the logo
+  useEffect(() => {
+    const img = new Image();
+    img.src = '/image/okao.png'; // Update with your actual logo path
+    img.onload = () => {
+      logoRef.current = img;
+    };
+  }, []);
 
   // Initialize Camera
   useEffect(() => {
@@ -54,7 +66,7 @@ const CameraFeed: React.FC<CameraFeedProps> = ({ style }) => {
     if (!videoRef.current || !isSendingRef.current) return;
 
     const now = Date.now();
-    if (now - lastCallRef.current < 1000) return; // Throttle calls (5 seconds)
+    if (now - lastCallRef.current < 1000) return; // Throttle calls (1 second)
 
     lastCallRef.current = now;
 
@@ -74,13 +86,13 @@ const CameraFeed: React.FC<CameraFeedProps> = ({ style }) => {
 
     if (!blob) return;
 
-    // Create an image URL from the blob
-    // const imageUrl = URL.createObjectURL(blob);
-    // setImageUrl(imageUrl); // Update the state with the image URL
-
     const formData = new FormData();
     formData.append('file', blob, 'frame.png');
-    formData.append('temperature', '37.7');
+
+    formData.append(
+      'temperature',
+      BodyTemperature?.ambient.toString() ?? 'n/a'
+    );
 
     try {
       const response = await fetch(backendUrl + '/api/v1/attendance/create', {
@@ -101,10 +113,6 @@ const CameraFeed: React.FC<CameraFeedProps> = ({ style }) => {
       renderPredictions(data.dimensions);
 
       if (data.attendanceDto.staffResponseDto.staffId > 0) {
-        // alert(
-        //   `Welcome, Staff ID:${data.attendanceDto.staffResponseDto.staffId}, ${data.attendanceDto.staffResponseDto.firstName} ${data.attendanceDto.staffResponseDto.lastName}. Open the door now`
-        // );
-
         setGeneral_ModalContentState(
           `Success`,
           `Welcome, Staff ID:${data.attendanceDto.staffResponseDto.staffId}, ${data.attendanceDto.staffResponseDto.firstName} ${data.attendanceDto.staffResponseDto.lastName}. Open the door now`
@@ -132,37 +140,32 @@ const CameraFeed: React.FC<CameraFeedProps> = ({ style }) => {
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+    // Draw bounding box for detected face
     if (dimensions) {
       const { center_x, center_y, face_width, face_height } = dimensions;
-      console.log('render dimensions:' + JSON.stringify(dimensions, null, 2));
-
-      const x = center_x - face_width / 2;
-      const y = center_y - face_height / 2;
+      console.log('Render dimensions:' + JSON.stringify(dimensions, null, 2));
 
       ctx.strokeStyle = '#FF0000';
       ctx.lineWidth = 4;
-      ctx.strokeRect(300, 80, 20, 20);
-
-      if (
-        x < videoRef.current!.videoWidth * 0.5 &&
-        y < videoRef.current!.videoHeight * 0.5
-      ) {
-        setNum((prev) => prev + 1);
-      }
+      ctx.strokeRect(
+        center_x - face_width / 2,
+        center_y - face_height / 2,
+        face_width,
+        face_height
+      );
     }
-  };
 
-  // Button Handlers
-  const stopSending = () => {
-    isSendingRef.current = false;
-    console.log('Stopped sending frames.');
-    alert('Stopped sending frames.');
-  };
-
-  const resumeSending = () => {
-    isSendingRef.current = true;
-    console.log('Resumed sending frames.');
-    alert('Resumed sending frames.');
+    // Draw watermark logo
+    if (logoRef.current) {
+      const logoSize = 80; // Adjust logo size as needed
+      ctx.drawImage(
+        logoRef.current,
+        canvas.width - logoSize - 10,
+        canvas.height - logoSize - 10,
+        logoSize,
+        logoSize
+      );
+    }
   };
 
   // Periodically Send Frames
@@ -175,64 +178,41 @@ const CameraFeed: React.FC<CameraFeedProps> = ({ style }) => {
   }, []);
 
   return (
-    <div style={style}>
-      <div>
-        <div
-          style={{ position: 'relative', width: '100%', overflow: 'hidden' }}
-        >
-          <video
-            ref={videoRef}
-            autoPlay
-            muted
-            playsInline
-            style={{ width: '100%', height: '100%' }}
-          />
-          <canvas
-            ref={canvasRef}
-            style={{
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              pointerEvents: 'none',
-              width: '100%',
-              height: '100%',
-            }}
-          />
-        </div>
-        <div>FPS: {fps}</div>
-        <div>Face Detections: {num}</div>
-        <div>Dimension: {JSON.stringify(dimensions_show, null, 2)}</div>
-      </div>
-      {/* {imageUrl && (
-        <div>
-          <h2>Captured Frame:</h2>
-          <img
-            src={imageUrl}
-            alt="Captured frame"
-            style={{ maxWidth: "100%" }}
-          />
-        </div>
-      )} */}
-
-      <div
-        style={{
-          marginTop: '20px',
-          display: 'flex',
-          justifyContent: 'space-between',
-        }}
-      >
-        <button
-          onClick={stopSending}
-          style={{ padding: '10px', background: '#f44336' }}
-        >
-          Stop Sending
-        </button>
-        <button
-          onClick={resumeSending}
-          style={{ padding: '10px', background: '#4caf50' }}
-        >
-          Resume Sending
-        </button>
+    <div
+      style={{
+        ...style,
+        width: '100%',
+        height: '100%',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        overflow: 'hidden',
+      }}
+    >
+      <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+        <video
+          ref={videoRef}
+          autoPlay
+          muted
+          playsInline
+          style={{
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover',
+            borderRadius: '10px',
+          }}
+        />
+        <canvas
+          ref={canvasRef}
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            pointerEvents: 'none',
+            width: '100%',
+            height: '100%',
+          }}
+        />
       </div>
     </div>
   );

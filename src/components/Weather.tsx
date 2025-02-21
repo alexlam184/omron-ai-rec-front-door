@@ -1,87 +1,49 @@
 'use client';
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
-
-interface WeatherData {
-  city: string;
-  temperature: string;
-  feelsLike: string;
-  description: string;
-  windSpeed: string;
-  humidity: string;
-  sunrise: string;
-  sunset: string;
-}
+import React from 'react';
+import { useOpenWeatherQuery } from '@/service/apiService';
 
 interface WeatherProps {
   style?: React.CSSProperties;
 }
 
 const Weather: React.FC<WeatherProps> = ({ style }) => {
-  const [weather, setWeather] = useState<WeatherData | null>(null);
-  const API_KEY = '9fd5335b9f3a19e8626718818862e335';
-  const BASE_URL = 'https://api.openweathermap.org/data/2.5/weather';
+  const { data: weather, isLoading, error } = useOpenWeatherQuery();
 
-  useEffect(() => {
-    const fetchWeather = async (city: string = 'Tsim Sha Tsui,HK') => {
-      try {
-        const response = await axios.get(
-          `${BASE_URL}?q=${city}&appid=${API_KEY}&units=metric`
-        );
-
-        const res = response.data;
-
-        setWeather({
-          city: res.name || 'Unknown city',
-          temperature: res.main?.temp
-            ? `${res.main.temp}`
-            : 'Temperature data not available',
-          feelsLike: res.main?.feels_like
-            ? `${res.main.feels_like}`
-            : 'Feels-like temperature not available',
-          description:
-            res.weather?.[0]?.description || 'No description available',
-          windSpeed: res.wind?.speed
-            ? `${res.wind.speed} m/s`
-            : 'Wind data not available',
-          humidity: res.main?.humidity
-            ? `${res.main.humidity}%`
-            : 'Humidity data not available',
-          sunrise: res.sys?.sunrise
-            ? new Date(res.sys.sunrise * 1000).toLocaleTimeString()
-            : 'Sunrise data not available',
-          sunset: res.sys?.sunset
-            ? new Date(res.sys.sunset * 1000).toLocaleTimeString()
-            : 'Sunset data not available',
-        });
-      } catch (error) {
-        console.error('Error fetching weather data:', error);
-        setWeather({
-          city: 'Error fetching data',
-          temperature: 'Error fetching data',
-          feelsLike: 'Error fetching data',
-          description: 'Error fetching data',
-          windSpeed: 'Error fetching data',
-          humidity: 'Error fetching data',
-          sunrise: 'Error fetching data',
-          sunset: 'Error fetching data',
-        });
-      }
-    };
-
-    fetchWeather();
-  }, []);
+  if (isLoading) return <p>Loading weather...</p>;
+  if (error) return <p>Error fetching weather data</p>;
 
   return (
-    <div>
-      <h2>🌤️ Current Weather</h2>
-      {weather ? (
-        <p>
-          {weather.temperature}°C - {weather.description}
-        </p>
-      ) : (
-        <p>Loading weather...</p>
-      )}
+    <div
+      style={style}
+      className="flex justify-center items-center h-full w-full "
+    >
+      {/* <div className="flex flex-col justify-center items-center bg-gradient-to-b from-[#005EB8] to-[#edf3f1] text-gray-900 px-4 py-8 rounded-lg text-sm 2xl:px-20 2xl:py-4 2xl:rounded-xl 2xl:text-md 2xl:text-lg font-semibold shadow-lg w-full max-w-[250px] 2xl:max-w-md h-full border border-gray-300 mb-8"> */}
+      <div className="flex flex-col justify-center items-center  text-gray-900 px-4 py-8 rounded-lg text-sm 2xl:px-20 2xl:py-4 2xl:rounded-xl 2xl:text-md 2xl:text-lg font-semibold  w-full max-w-[250px] 2xl:max-w-md h-full  mb-8">
+        {/* <h2 className="text-xl 3xl:text-xl font-bold text-center mb-3 2xl:mb-4 text-black">
+          Tsim Sha Tsui, HK
+        </h2> */}
+
+        {weather && (
+          <div className="flex flex-col justify-center items-center space-y-3 2xl:space-y-4 flex-grow">
+            {/* Weather Icon */}
+            <img
+              src={`https://openweathermap.org/img/wn/${weather.weather?.[0].icon}@4x.png`}
+              alt="Weather icon"
+              className="w-48 2xl:w-48 bg-[#005EB8] rounded-full"
+            />
+
+            {/* Weather Description */}
+            <p className="text-lg 2xl:text-3xl font-medium text-gray-700 capitalize">
+              {weather.weather?.[0].description}
+            </p>
+
+            {/* Temperature */}
+            <div className="text-4xl 2xl:text-6xl font-bold text-gray-800">
+              {weather.main.temp}°C
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 };

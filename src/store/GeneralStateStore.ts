@@ -1,3 +1,4 @@
+import { BodyTemperatureRecordType, BodyTemperatureType } from '@/lib/type';
 import { ModalContentType } from '@/types/types';
 import { create } from 'zustand';
 
@@ -7,6 +8,11 @@ type GeneralStateStore = {
   setGeneral_ModalIsOpenedState: (param: boolean) => void;
   setGeneral_ModalContentState: (title: string, content: string) => void;
   resetgeneral_modalState: () => void;
+  bodyTemperatureInTimeState: BodyTemperatureRecordType[];
+  appendBodyTemperatureInTimeState: (
+    bodyTemp: BodyTemperatureType,
+    Time: Date
+  ) => void;
 };
 
 export const useGeneralStateStore = create<GeneralStateStore>((set) => ({
@@ -31,5 +37,20 @@ export const useGeneralStateStore = create<GeneralStateStore>((set) => ({
         title: 'Default title',
         content: 'No content loaded.Something went wrong.',
       },
+    }),
+  bodyTemperatureInTimeState: [],
+  appendBodyTemperatureInTimeState: (bodyTemp, time) =>
+    set((state) => {
+      const newEntries = [
+        ...state.bodyTemperatureInTimeState,
+        { ambient: bodyTemp.ambient, object: bodyTemp.object, time },
+      ];
+
+      // Keep only the last 100 elements
+      if (newEntries.length > 100) {
+        newEntries.shift(); // Remove the first (oldest) entry
+      }
+
+      return { bodyTemperatureInTimeState: newEntries };
     }),
 }));

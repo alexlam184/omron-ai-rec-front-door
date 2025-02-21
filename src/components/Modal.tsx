@@ -1,6 +1,17 @@
 'use client';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useGeneralStateStore } from '@/store/GeneralStateStore';
+
+import { Button } from '@/components/ui/button';
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 
 export default function AlertDialog() {
   const {
@@ -9,74 +20,42 @@ export default function AlertDialog() {
     general_modalContentState,
   } = useGeneralStateStore();
 
-  const handleClose = () => {
-    setGeneral_ModalIsOpenedState(false);
-  };
+  // Auto-close after 2 seconds when the modal opens
+  useEffect(() => {
+    if (general_modalIsOpenedState) {
+      const timer = setTimeout(() => {
+        setGeneral_ModalIsOpenedState(false);
+      }, 2000);
+
+      return () => clearTimeout(timer); // Cleanup on unmount or re-render
+    }
+  }, [general_modalIsOpenedState, setGeneral_ModalIsOpenedState]);
 
   return (
-    <>
-      {' '}
-      {/* Modal to welcome staff */}
-      {general_modalIsOpenedState && (
-        <div
-          style={{
-            position: 'fixed',
-            top: '0',
-            left: '0',
-            width: '100%',
-            height: '100%',
-            backgroundColor: 'rgba(0,0,0,0.5)',
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            zIndex: '1000',
-          }}
-        >
-          <div
-            style={{
-              backgroundColor: 'white',
-              padding: '20px',
-              borderRadius: '10px',
-              textAlign: 'center',
-            }}
-          >
-            <h2>{general_modalContentState.title}</h2>
-            <p>{general_modalContentState.content}</p>
-            <button
-              onClick={handleClose}
-              style={{
-                padding: '10px 20px',
-                backgroundColor: '#4caf50',
-                color: 'white',
-                border: 'none',
-                borderRadius: '5px',
-              }}
+    <Dialog
+      open={general_modalIsOpenedState}
+      onOpenChange={setGeneral_ModalIsOpenedState}
+    >
+      <DialogContent className="max-w-md p-6 bg-white rounded-lg shadow-xl border border-gray-200">
+        <DialogHeader className="text-left">
+          <DialogTitle className="text-xl font-semibold text-gray-900">
+            {general_modalContentState.title}
+          </DialogTitle>
+          <DialogDescription className="text-sm text-gray-600 mt-2">
+            {general_modalContentState.content}
+          </DialogDescription>
+        </DialogHeader>
+        {/* <DialogFooter className="pt-4">
+          <DialogClose asChild>
+            <Button
+              variant="outline"
+              className="px-4 py-2 text-gray-800 border-gray-300 hover:bg-gray-100"
             >
               Close
-            </button>
-          </div>
-        </div>
-      )}
-    </>
-    // <Dialog
-    //   open={general_modalIsOpenedState}
-    //   onClose={handleClose}
-    //   aria-labelledby="alert-dialog-title"
-    //   aria-describedby="alert-dialog-description"
-    // >
-    //   <DialogTitle id="alert-dialog-title">
-    //     {general_modalContentState.title}
-    //   </DialogTitle>
-    //   <DialogContent>
-    //     <DialogContentText id="alert-dialog-description">
-    //       {general_modalContentState.content}
-    //     </DialogContentText>
-    //   </DialogContent>
-    //   <DialogActions>
-    //     <Button onClick={handleClose} autoFocus>
-    //       Understand
-    //     </Button>
-    //   </DialogActions>
-    // </Dialog>
+            </Button>
+          </DialogClose>
+        </DialogFooter> */}
+      </DialogContent>
+    </Dialog>
   );
 }

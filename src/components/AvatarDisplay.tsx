@@ -8,43 +8,38 @@ interface AvatarDisplayProps {
 
 const AvatarDisplay: React.FC<AvatarDisplayProps> = ({ style }) => {
   return (
-    <div style={style}>
+    <div
+      style={{
+        ...style,
+        width: '100%',
+        height: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}
+    >
+      {/* Large Avatar at the bottom */}
       <div
         style={{
+          flex: 1,
+          width: '100%',
           display: 'flex',
-          flexDirection: 'column',
+          justifyContent: 'center',
           alignItems: 'center',
-          justifyContent: 'flex-start', // Change to flex-start to reduce the gap
-          padding: '20px',
-          textAlign: 'center',
         }}
       >
-        {/* Logo at the top */}
-        <div>
-          <img
-            src="/image/Omron_Logo.png" // Updated logo path
-            alt="Logo"
-            style={{
-              height: '50px',
-              objectFit: 'contain',
-              borderRadius: '8px',
-            }}
-          />
-        </div>
-
-        {/* Large Avatar at the bottom */}
-        <div>
-          <img
-            src="/image/Avatar.png" // Updated avatar path
-            alt="Avatar"
-            style={{
-              width: '300px', // Increased size for the avatar
-              height: '300px', // Increased size for the avatar
-              objectFit: 'cover', // Ensures the image fills the circular area without distortion
-              marginTop: '20px', // Optional: Add a small margin for spacing
-            }}
-          />
-        </div>
+        <img
+          src="/image/Omron_Logo.png" // Updated avatar path
+          alt="Avatar"
+          style={{
+            width: '100%', // Make it take almost full width of the parent
+            height: '100%', // Adjust height to fill parent
+            maxWidth: '400px', // Limit max size
+            maxHeight: '400px', // Limit max size
+            objectFit: 'contain', // Ensures it fits properly
+          }}
+        />
       </div>
     </div>
   );
