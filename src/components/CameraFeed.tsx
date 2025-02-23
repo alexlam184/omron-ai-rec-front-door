@@ -20,11 +20,11 @@ const CameraFeed: React.FC<CameraFeedProps> = ({ style }) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const logoRef = useRef<HTMLImageElement | null>(null); // Reference for the logo
 
-  const [fps, setFps] = useState<number>(0);
-  const [num, setNum] = useState<number>(0);
-  const [dimensions_show, setDimensions_show] = useState<DimensionsType | null>(
-    null
-  );
+  // const [fps, setFps] = useState<number>(0);
+  // const [num, setNum] = useState<number>(0);
+  // const [dimensions_show, setDimensions_show] = useState<DimensionsType | null>(
+  //   null
+  // );
   const { setGeneral_ModalIsOpenedState, setGeneral_ModalContentState } =
     useGeneralStateStore();
 
@@ -91,7 +91,7 @@ const CameraFeed: React.FC<CameraFeedProps> = ({ style }) => {
 
     formData.append(
       'temperature',
-      BodyTemperature?.ambient.toString() ?? 'n/a'
+      BodyTemperature?.ambient.toString() ?? '-9999'
     );
 
     try {
@@ -101,7 +101,7 @@ const CameraFeed: React.FC<CameraFeedProps> = ({ style }) => {
       });
       const data = await response.json();
 
-      setDimensions_show(data.dimensions);
+      // setDimensions_show(data.dimensions);
       if (!data.dimensions || !data.attendanceDto.staffResponseDto) {
         console.log('No face detected');
         return;
@@ -126,7 +126,10 @@ const CameraFeed: React.FC<CameraFeedProps> = ({ style }) => {
         setGeneral_ModalIsOpenedState(true);
       }
     } catch (error) {
-      console.error('Error sending frame to backend:', error);
+      let message = 'Error sending frame to backend:' + error;
+      console.error(message);
+      setGeneral_ModalContentState(`Error`, message);
+      setGeneral_ModalIsOpenedState(true);
     }
   };
 
