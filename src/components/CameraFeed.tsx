@@ -21,7 +21,6 @@ const CameraFeed: React.FC<CameraFeedProps> = ({ style }) => {
   const { data: BodyTemperature } = useBodyTemperatureQuery();
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const logoRef = useRef<HTMLImageElement | null>(null);
 
   const { setGeneral_ModalIsOpenedState, setGeneral_ModalContentState } =
     useGeneralStateStore();
@@ -37,7 +36,7 @@ const CameraFeed: React.FC<CameraFeedProps> = ({ style }) => {
       console.log(
         `Staff ID: ${data.attendanceDto.staffResponseDto.staffId}, ${data.attendanceDto.staffResponseDto.firstName} ${data.attendanceDto.staffResponseDto.lastName} face detected`
       );
-      renderPredictions(data.dimensions);
+      //renderPredictions(data.dimensions); //rendering the face box
 
       const { staffId, firstName, lastName } =
         data.attendanceDto.staffResponseDto;
@@ -60,15 +59,6 @@ const CameraFeed: React.FC<CameraFeedProps> = ({ style }) => {
       setGeneral_ModalIsOpenedState(true);
     },
   });
-
-  // Load the logo
-  useEffect(() => {
-    const img = new Image();
-    img.src = '/image/okao.png';
-    img.onload = () => {
-      logoRef.current = img;
-    };
-  }, []);
 
   // Initialize Camera
   useEffect(() => {
@@ -148,18 +138,6 @@ const CameraFeed: React.FC<CameraFeedProps> = ({ style }) => {
       face_width,
       face_height
     );
-
-    // Draw watermark logo
-    if (logoRef.current) {
-      const logoSize = 80;
-      ctx.drawImage(
-        logoRef.current,
-        canvas.width - logoSize - 10,
-        canvas.height - logoSize - 10,
-        logoSize,
-        logoSize
-      );
-    }
   };
 
   return (
@@ -174,6 +152,10 @@ const CameraFeed: React.FC<CameraFeedProps> = ({ style }) => {
         overflow: 'hidden',
       }}
     >
+      <img
+        src="/image/okao.png"
+        className="absolute z-50 top-0 right-0 w-36 m-4"
+      ></img>
       <div style={{ position: 'relative', width: '100%', height: '100%' }}>
         <video
           ref={videoRef}
