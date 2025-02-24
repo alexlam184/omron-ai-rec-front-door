@@ -39,7 +39,7 @@ export const fetchBodyTemperature =
     } else {
       res = parseTemperature(
         //TODO : temp for tesing
-        `Ambient = ${getRandomTemperature()}*C	Object = 20.52*C`
+        `Ambient = 29.52*C Object = ${getRandomTemperature()}*C`
       );
     }
 

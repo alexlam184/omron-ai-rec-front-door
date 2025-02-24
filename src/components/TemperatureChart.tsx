@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import {
   LineChart,
   Line,
@@ -79,13 +79,13 @@ const TemperatureChart: React.FC<Props> = ({ style }) => {
           fontSize: '40px',
           fontWeight: 'bold',
           color:
-            bodyTemperatureData?.ambient && bodyTemperatureData?.ambient >= 37.5
+            bodyTemperatureData?.object && bodyTemperatureData?.object >= 37.5
               ? '#FF5733'
               : '#3780C6',
           margin: '10px 0 20px',
         }}
       >
-        {bodyTemperatureData?.ambient ?? 'N/A '}°C
+        {bodyTemperatureData?.object ?? 'N/A '}°C
       </p>
 
       {/* Responsive container that dynamically adjusts height */}

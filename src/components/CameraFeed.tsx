@@ -105,7 +105,7 @@ const CameraFeed: React.FC<CameraFeedProps> = ({ style }) => {
     formData.append('file', blob, 'frame.png');
     formData.append(
       'temperature',
-      BodyTemperature?.ambient.toString() ?? '-9999'
+      BodyTemperature?.object.toString() ?? '-9999'
     );
 
     const r = await sendFrameToBackend(formData);
