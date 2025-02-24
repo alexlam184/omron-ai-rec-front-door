@@ -38,14 +38,14 @@ export default function AlertDialog() {
     >
       <DialogContent className="max-w-md p-6 bg-white rounded-lg shadow-xl border border-gray-200">
         <DialogHeader className="text-left">
-          <DialogTitle className="text-xl font-semibold text-gray-900">
+          <DialogTitle className="text-4xl font-semibold text-gray-900">
             {general_modalContentState.title}
           </DialogTitle>
-          <DialogDescription className="text-sm text-gray-600 mt-2">
+          <DialogDescription className="text-xl text-gray-600 mt-2">
             {general_modalContentState.content}
           </DialogDescription>
         </DialogHeader>
-        {/* <DialogFooter className="pt-4">
+        <DialogFooter className="pt-4">
           <DialogClose asChild>
             <Button
               variant="outline"
@@ -54,7 +54,7 @@ export default function AlertDialog() {
               Close
             </Button>
           </DialogClose>
-        </DialogFooter> */}
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

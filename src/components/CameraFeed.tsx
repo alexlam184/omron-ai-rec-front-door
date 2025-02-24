@@ -28,30 +28,50 @@ const CameraFeed: React.FC<CameraFeedProps> = ({ style }) => {
   const { mutate: sendFrameToBackend } = useSendFrameMutation({
     onSuccess: (data) => {
       console.log('Success:', data);
-      if (!data.dimensions || !data.attendanceDto?.staffResponseDto) {
-        console.log('No face detected');
+
+      // Check if face is detected
+      const isStaffDetected =
+        data.dimensions && data.attendanceDto?.staffResponseDto;
+      const { staffId, firstName, lastName } =
+        data.attendanceDto?.staffResponseDto || {};
+
+      // Handle when no staff is detected
+      if (!isStaffDetected) {
+        if (BodyTemperature && BodyTemperature.object <= 37.5) {
+          // Staff not detected and no fever
+          setGeneral_ModalContentState(
+            `No Staff Detected`,
+            `No staff detected, no fever detected. Please check the camera or the staff's face.`
+          );
+        } else {
+          // Staff not detected with fever
+          setGeneral_ModalContentState(
+            `Access Denied`,
+            `No staff detected, but fever detected. Please check the camera or the staff's face.`
+          );
+        }
+        setGeneral_ModalIsOpenedState(true);
         return;
       }
 
-      console.log(
-        `Staff ID: ${data.attendanceDto.staffResponseDto.staffId}, ${data.attendanceDto.staffResponseDto.firstName} ${data.attendanceDto.staffResponseDto.lastName} face detected`
-      );
-      //renderPredictions(data.dimensions); //rendering the face box
-
-      const { staffId, firstName, lastName } =
-        data.attendanceDto.staffResponseDto;
-      if (staffId > 0) {
-        setGeneral_ModalContentState(
-          `Success`,
-          `Welcome, Staff ID: ${staffId}, ${firstName} ${lastName}. Open the door now`
-        );
-      } else {
-        setGeneral_ModalContentState(
-          `Fail`,
-          `Face detected but you are not authorized to get in.`
-        );
+      // Handle when staff is detected
+      if (isStaffDetected) {
+        if (BodyTemperature && BodyTemperature.object <= 37.5) {
+          // Staff detected with no fever
+          setGeneral_ModalContentState(
+            `Success`,
+            `Welcome, Staff ID: ${staffId}, ${firstName} ${lastName}. Open the door now.`
+          );
+          // Optionally, trigger the door-opening action here
+        } else {
+          // Staff detected with fever
+          setGeneral_ModalContentState(
+            `Access Denied`,
+            `Staff ID: ${staffId}, ${firstName} ${lastName}, you cannot access the office due to fever.`
+          );
+        }
+        setGeneral_ModalIsOpenedState(true);
       }
-      setGeneral_ModalIsOpenedState(true);
     },
     onError: (error) => {
       console.error('Error sending frame:', error);
