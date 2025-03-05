@@ -89,3 +89,74 @@ export const useSendFrameMutation = (p0: {
     onSuccess: p0.onSuccess,
   });
 };
+
+const submit_broadcast_workpass = async ({
+  title,
+  content,
+  time,
+  venue,
+  special,
+}: {
+  title: string;
+  content: string;
+  time: string;
+  venue: string;
+  special: string;
+}) => {
+  try {
+    // Prepare the request body
+    const broadcastData = JSON.stringify({
+      title,
+      content,
+      time,
+      venue,
+      special,
+    });
+
+    // Make the POST request
+    const response = await fetch(
+      `${backendUrl}/api/v1/workpass/broadcast/admin`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json', // Set the content type
+        },
+        body: broadcastData, // Ensure body is a JSON string
+      }
+    );
+
+    // Handle response errors
+    if (!response.ok) {
+      throw new Error(
+        `Failed to send frame to backend: ${response.statusText}`
+      );
+    }
+
+    // Parse response correctly
+    return (await response.json()) as string[];
+  } catch (error: any) {
+    console.error('Error submitting broadcast workpass:', error);
+    throw error; // Handle the error gracefully
+  }
+};
+
+export const useWorkpassBroadcastAdmin = (p0: {
+  onSuccess?: (data: any) => void;
+  onError?: (error: any) => void;
+}) => {
+  return useMutation<
+    string[], // The expected response type
+    Error, // The error type
+    {
+      title: string;
+      content: string;
+      time: string;
+      venue: string;
+      special: string;
+    }
+  >({
+    mutationFn: submit_broadcast_workpass,
+    onError: p0.onError,
+    onSuccess: p0.onSuccess,
+  });
+};

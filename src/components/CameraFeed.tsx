@@ -35,24 +35,21 @@ const CameraFeed: React.FC<CameraFeedProps> = ({ style }) => {
       const { staffId, firstName, lastName } =
         data.attendanceDto?.staffResponseDto || {};
 
-      // Handle when no staff is detected
-      if (!isStaffDetected) {
-        if (BodyTemperature && BodyTemperature.object <= 37.5) {
-          // Staff not detected and no fever
-          setGeneral_ModalContentState(
-            `No Staff Detected`,
-            `No staff detected, no fever detected. Please check the camera or the staff's face.`
-          );
-        } else {
-          // Staff not detected with fever
-          setGeneral_ModalContentState(
-            `Access Denied`,
-            `No staff detected, but fever detected. Please check the camera or the staff's face.`
-          );
-        }
-        setGeneral_ModalIsOpenedState(true);
-        return;
-      }
+      // // Handle when no staff is detected
+      // if (!isStaffDetected) {
+      //   if (BodyTemperature && BodyTemperature.object <= 37.5) {
+      //     // no need to handle
+      //     return;
+      //   } else {
+      //     // Staff not detected with fever
+      //     setGeneral_ModalContentState(
+      //       `Access Denied`,
+      //       `No staff detected, but fever detected. Please check the camera or the staff's face.`
+      //     );
+      //   }
+      //   setGeneral_ModalIsOpenedState(true);
+      //   return;
+      // }
 
       // Handle when staff is detected
       if (isStaffDetected) {

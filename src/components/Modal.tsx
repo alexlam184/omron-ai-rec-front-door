@@ -25,7 +25,7 @@ export default function AlertDialog() {
     if (general_modalIsOpenedState) {
       const timer = setTimeout(() => {
         setGeneral_ModalIsOpenedState(false);
-      }, 2000);
+      }, 4000);
 
       return () => clearTimeout(timer); // Cleanup on unmount or re-render
     }
@@ -42,7 +42,16 @@ export default function AlertDialog() {
             {general_modalContentState.title}
           </DialogTitle>
           <DialogDescription className="text-xl text-gray-600 mt-2">
-            {general_modalContentState.content}
+            {typeof general_modalContentState.content === 'string'
+              ? general_modalContentState.content
+                  .split('\n') // support "\n" for line break
+                  .map((line, index) => (
+                    <React.Fragment key={index}>
+                      {line}
+                      <br />
+                    </React.Fragment>
+                  ))
+              : general_modalContentState.content}
           </DialogDescription>
         </DialogHeader>
         <DialogFooter className="pt-4">
